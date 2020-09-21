@@ -566,7 +566,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 137.78,
+      "width": 0,
       "height": 40
     },
     "_anchorPoint": {
@@ -632,7 +632,7 @@
     "_batchAsBitmap": false,
     "_styleFlags": 0,
     "_underlineHeight": 0,
-    "_N$horizontalAlign": 1,
+    "_N$horizontalAlign": 0,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
@@ -694,8 +694,8 @@
     "starPrefab": {
       "__uuid__": "739b2a2c-df4b-4972-bb58-6db0a5a484b4"
     },
-    "maxStarDuration": 0,
-    "minStarDuration": 0,
+    "maxStarDuration": 10,
+    "minStarDuration": 5,
     "ground": {
       "__id__": 7
     },

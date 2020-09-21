@@ -31,6 +31,9 @@ export default class Game extends cc.Component {
 
     private groundY:number = 0;
 
+    private timer:number = 0;
+    private starDuration:number = 0;
+
     // LIFE-CYCLE CALLBACKS:
 
      onLoad () {
@@ -42,6 +45,10 @@ export default class Game extends cc.Component {
 
 
     spawnStar(){
+
+        this.timer = 0;
+        this.starDuration = this.minStarDuration + Math.random()*(this.maxStarDuration - this.minStarDuration);
+
         var newStar = cc.instantiate(this.starPrefab);
         this.node.addChild(newStar);
         newStar.setPosition(this.getNewStarPosition());
@@ -61,7 +68,20 @@ export default class Game extends cc.Component {
         this.scoreTx.string = "SCORE:"+this.totalScore;
     }
 
-    // update (dt) {}
+     update (dt) {
+        
+        if (this.timer > this.starDuration)
+        {
+            this.gameOver();
+            return;
+        }
+        this.timer += dt;
+     }
+
+     gameOver(){
+         this.player.stopAllActions();
+         cc.director.loadScene("main");
+     }
 
     //start(){}
 }
