@@ -30,14 +30,14 @@ export default class Star extends cc.Component {
 
      onPicked(){
 
-        this.game.setScore(this.score);
+        this.game.setScore(this.score,this.node.getPosition());
 
-         this.game.spawnStar();
-         this.node.destroy();
+        this.game.spawnStar();
+        this.node.destroy();
      }
     //start () {}
 
-    
+
      update (dt) {
 
          if(this.getPlayerDistance() < this.pickRadius)

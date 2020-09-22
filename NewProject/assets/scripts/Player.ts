@@ -17,6 +17,9 @@ export default class Player extends cc.Component {
     jumpDuration:number = 0;
 
     @property
+    scaleDuration:number = 0;
+
+    @property
     maxMoveSpeed:number = 0;
 
     @property
@@ -29,14 +32,18 @@ export default class Player extends cc.Component {
     accRight:boolean = false;
     xSpeed:number = 0;
 
+    private isPlay:boolean = false;
+    private maxWidth:number = 0;
+
     setJumpAction() {
 
-        var jumpUp = cc.moveBy(this.jumpDuration,cc.v2(0,this.jumpHeight)).easing(cc.easeCubicActionInOut());
-        var jumpDown = cc.moveBy(this.jumpDuration,cc.v2(0,-this.jumpHeight)).easing(cc.easeCubicActionInOut());
+        var jumpUp = cc.moveBy(this.jumpDuration,cc.v2(0,this.jumpHeight)).easing(cc.easeCubicActionOut());
+        var jumpDown = cc.moveBy(this.jumpDuration,cc.v2(0,-this.jumpHeight)).easing(cc.easeCubicActionIn());
 
-        console.log("this.jumpAudio:"+this.jumpAudio)
-
-        var act = cc.sequence(jumpUp,jumpDown,cc.callFunc(function(){
+        var scaleDown = cc.scaleTo(this.scaleDuration,1,0.6);
+        var scaleUp = cc.scaleTo(this.scaleDuration,1,1.2);
+        var scaleBack = cc.scaleTo(this.scaleDuration,1,1);
+        var act = cc.sequence(scaleDown,scaleUp,jumpUp,scaleBack,jumpDown,cc.callFunc(function(){
             cc.audioEngine.playEffect(this.jumpAudio,false);
         },this))
 
@@ -45,22 +52,23 @@ export default class Player extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-
-        this.node.active = true;
-        let jumpAction = this.setJumpAction(); 
-        this.node.runAction(jumpAction);
-
-        this.accLeft = false;
-        this.accRight = false;
-        
-        this.xSpeed = 0;
-        
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN,this.onKeyDown,this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP,this.onKeyUp,this);
-
+        this.maxWidth = cc.director.getWinSize().width/2 - this.node.getContentSize().width/2;
      }
 
-     onDestroy() {
+    onRestPlayer(){
+        this.node.active = true;
+        this.node.setPosition(cc.v2(0,-120))
+        let jumpAction = this.setJumpAction(); 
+        this.node.runAction(jumpAction);
+        this.accLeft = false;
+        this.accRight = false;
+        this.xSpeed = 0;
+        this.isPlay = true;
+    }
+
+    onDestroy() {
 
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN,this.onKeyDown,this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP,this.onKeyUp,this);
@@ -94,19 +102,30 @@ export default class Player extends cc.Component {
      //start(){}
 
      update (dt) {
-         if(this.accLeft)
-         {
-             this.xSpeed -= this.accel * dt;
-         }else if(this.accRight){
-             this.xSpeed += this.accel * dt;
-         }
 
-         if(Math.abs(this.xSpeed) > this.maxMoveSpeed)
-         {
-             this.xSpeed = this.maxMoveSpeed * (this.xSpeed)/Math.abs(this.xSpeed);
-         }
+        if(!this.isPlay)
+            return;
 
-         this.node.x += this.xSpeed * dt;
+        if(this.accLeft)
+        {
+            this.xSpeed -= this.accel * dt;
+        }else if(this.accRight){
+            this.xSpeed += this.accel * dt;
+        }
+
+        if(Math.abs(this.xSpeed) > this.maxMoveSpeed)
+        {
+            this.xSpeed = this.maxMoveSpeed * (this.xSpeed)/Math.abs(this.xSpeed);
+        }
+
+        var x = this.node.x
+        x += this.xSpeed * dt;
+        if(Math.abs(x) >= this.maxWidth)
+        {
+             x = this.maxWidth*x/Math.abs(x)
+             this.xSpeed = 0;
+        }
+        this.node.x = x;
      }
 
      stop(){
@@ -115,5 +134,6 @@ export default class Player extends cc.Component {
         this.accRight = false;
         this.xSpeed = 0;
         this.node.active = false;
+        this.isPlay = false;
      }
 }
