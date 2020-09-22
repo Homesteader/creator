@@ -22,19 +22,31 @@ export default class Player extends cc.Component {
     @property
     accel:number = 0;
 
+    @property(cc.AudioClip)
+    jumpAudio : cc.AudioClip = null;
+
     accLeft:boolean = false;
     accRight:boolean = false;
     xSpeed:number = 0;
 
     setJumpAction() {
 
-        let jumpUp = cc.moveBy(this.jumpDuration,cc.v2(0,this.jumpHeight)).easing(cc.easeCubicActionInOut());
-        let jumpDown = cc.moveBy(this.jumpDuration,cc.v2(0,-this.jumpHeight)).easing(cc.easeCubicActionInOut());
-        return cc.repeatForever(cc.sequence(jumpUp,jumpDown));
+        var jumpUp = cc.moveBy(this.jumpDuration,cc.v2(0,this.jumpHeight)).easing(cc.easeCubicActionInOut());
+        var jumpDown = cc.moveBy(this.jumpDuration,cc.v2(0,-this.jumpHeight)).easing(cc.easeCubicActionInOut());
+
+        console.log("this.jumpAudio:"+this.jumpAudio)
+
+        var act = cc.sequence(jumpUp,jumpDown,cc.callFunc(function(){
+            cc.audioEngine.playEffect(this.jumpAudio,false);
+        },this))
+
+        return cc.repeatForever(act);
     }
     // LIFE-CYCLE CALLBACKS:
 
-     onLoad () {
+    onLoad () {
+
+        this.node.active = true;
         let jumpAction = this.setJumpAction(); 
         this.node.runAction(jumpAction);
 
@@ -95,5 +107,13 @@ export default class Player extends cc.Component {
          }
 
          this.node.x += this.xSpeed * dt;
+     }
+
+     stop(){
+        this.node.stopAllActions();
+        this.accLeft = false;
+        this.accRight = false;
+        this.xSpeed = 0;
+        this.node.active = false;
      }
 }

@@ -27,6 +27,15 @@ export default class Game extends cc.Component {
     @property(cc.Label)
     scoreTx : cc.Label = null;
     
+    @property(cc.Label)
+    gameOverTx : cc.Label = null;
+
+    @property(cc.Button)
+    rePlayBtn : cc.Button = null;
+
+    @property(cc.AudioClip)
+    scoreAudio : cc.AudioClip = null;
+
     public totalScore:number = 0;
 
     private groundY:number = 0;
@@ -37,12 +46,13 @@ export default class Game extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
      onLoad () {
-    
+        this.gameOverTx.node.active = false;
         this.setScore(0);
         this.groundY = this.ground.y + this.ground.height/2;
         this.spawnStar();
-     }
 
+        this.rePlayBtn.node.on(cc.Node.EventType.TOUCH_END,this.onReplay,this);
+     }
 
     spawnStar(){
 
@@ -53,6 +63,14 @@ export default class Game extends cc.Component {
         this.node.addChild(newStar);
         newStar.setPosition(this.getNewStarPosition());
         newStar.getComponent("Star").game = this;
+        
+        var act = cc.sequence(
+            cc.fadeOut(this.starDuration),
+            cc.callFunc(function(){
+                newStar.destroy();
+            })
+        )
+        newStar.runAction(act);
     }
 
     getNewStarPosition():cc.Vec2{
@@ -66,6 +84,10 @@ export default class Game extends cc.Component {
     setScore(per:number){
         this.totalScore += per;
         this.scoreTx.string = "SCORE:"+this.totalScore;
+        if(per > 0)
+        {
+            cc.audioEngine.playEffect(this.scoreAudio,false);
+        }
     }
 
      update (dt) {
@@ -77,10 +99,15 @@ export default class Game extends cc.Component {
         }
         this.timer += dt;
      }
-
+     
      gameOver(){
-         this.player.stopAllActions();
-         cc.director.loadScene("main");
+         this.gameOverTx.node.active = true;
+         this.player.getComponent("Player").stop();
+     }
+
+     onReplay(){
+
+        cc.director.loadScene("main");
      }
 
     //start(){}

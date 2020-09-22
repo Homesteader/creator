@@ -37,6 +37,7 @@ export default class Star extends cc.Component {
      }
     //start () {}
 
+    
      update (dt) {
 
          if(this.getPlayerDistance() < this.pickRadius)
