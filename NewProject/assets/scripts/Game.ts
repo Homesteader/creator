@@ -54,6 +54,7 @@ export default class Game extends cc.Component {
         this.gameOverTx.node.active = false;
         this.groundY = this.ground.y + this.ground.height/2;
         this.playBtn.node.on(cc.Node.EventType.TOUCH_END,this.startGame,this);
+        
     }
 
     spawnStar(){
@@ -73,6 +74,8 @@ export default class Game extends cc.Component {
             })
         )
         newStar.runAction(act);
+
+         
     }
  
     getNewStarPosition():cc.Vec2{
